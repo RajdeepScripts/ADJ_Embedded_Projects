@@ -1,6 +1,3 @@
-//Mini Radar System Using Ardiuno Uno
-
-
 #include <Servo.h>
 #define trigPin 10
 #define echoPin 11
@@ -23,7 +20,7 @@ void loop() {
   // Sweep from 0 to 180 degrees
   for (int angle = 0; angle <= 180; angle++) {
     servoMotor.write(angle);
-    delay(5);
+    delay(20);
     distance = getDistance();
 
     Serial.print("Angle: ");
@@ -42,8 +39,7 @@ void loop() {
   // Sweep back from 180 to 0 degrees
   for (int angle = 180; angle >= 0; angle--) {
     servoMotor.write(angle);
-    delay(5);
-    
+    delay(20);
     distance = getDistance();
 
     Serial.print("Angle: ");

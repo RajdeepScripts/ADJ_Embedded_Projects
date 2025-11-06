@@ -1,8 +1,3 @@
-//Mini Radar System Using Ardiuno UNO
-//Register Based Programming
-
-
-
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
