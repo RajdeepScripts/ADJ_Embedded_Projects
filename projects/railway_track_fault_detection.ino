@@ -1,5 +1,6 @@
 //Railway Track Fault Detection System
-
+//Done on a Arduino Uno Rev 3 
+//Rajdeep Mishra
 
 #include <Wire.h>
 
