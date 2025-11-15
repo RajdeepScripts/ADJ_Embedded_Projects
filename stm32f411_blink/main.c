@@ -22,7 +22,7 @@ int main(void)
        delay_ms(1000);
         GPIOA->ODR &= ~((1 << 5) | (1 << 6));  // LED OFF
        // for (int i = 0; i < 1000000; i++);
-       delay_ms(1000);
+       delay_ms(5000);
     }
 }
 
