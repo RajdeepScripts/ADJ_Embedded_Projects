@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Railway Impact Monitoring - ADJ Engineering</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<!-- Leaflet for maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+e2HkYk5b6m2b6bYwq0w0Qbq1zv+vZb6D1BM6z9eM=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j8Uq3Xl1Y3kG8R5Z2QxNvGmYk8bP3p2qfX5pQ2U=" crossorigin=""></script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #0b1220;
+}
+
+/* HEADER */
+header {
+    background-color: #1a1a1a;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    color: #22c55e;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+nav {
+    display: flex;
+    gap: 30px;
+}
+
+nav a {
+    color: #e6eef6;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #22c55e;
+}
+
+.container-wrapper {
+    display: flex;
+    min-height: calc(100vh - 60px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #0b1220;
+}
+
+
+.sidebar {
+    width: 260px;
+    background-color: #0f1722;
+    padding: 20px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: #22c55e;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.menu-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #e6eef6;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+
+.menu-btn:hover {
+    background: rgba(34,197,94,0.1);
+    border-color: rgba(34,197,94,0.3);
+}
+
+.menu-btn.active {
+    background: rgba(34,197,94,0.15);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 40px;
+}
+
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
+}
+
+.tab h2 {
+    margin-bottom: 20px;
+    color: #0b1220;
+    font-size: 22px;
+}
+
+.event-card {
+    background: white;
+    border-left: 4px solid #3b82f6;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.event-card h4 {
+    margin: 0 0 8px 0;
+    color: #0b1220;
+}
+
+.event-card p {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.graph-container {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+}
+
+.graph-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.graph-box h3 {
+    margin: 0 0 15px 0;
+    color: #0b1220;
+    font-size: 16px;
+}
+
+.csv-box {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    padding: 30px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+    height: fit-content;
+}
+
+.csv-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.csv-box a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.csv-box a:hover {
+    opacity: 0.9;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.image-grid img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* MODAL STYLES */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    max-width: 1000px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #ef4444;
+    font-size: 24px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #999;
+    width: 30px;
+    height: 30px;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.exception-details {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 15px 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.exception-details p {
+    margin: 8px 0;
+}
+
+.exception-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 12px;
+}
+
+.exception-table th {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #0b1220;
+}
+
+.exception-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    color: #333;
+}
+
+.exception-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #dc2626;
+}
+
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #0b1220;
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+.btn-success {
+    background-color: #22c55e;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #16a34a;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MAIN CONTAINER -->
+<div class="container-wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>MONITORING</h2>
+        <button class="menu-btn active" onclick="showTab('events', this)">Events</button>
+        <button class="menu-btn" onclick="showTab('graphs', this)">Graphs</button>
+        <button class="menu-btn" onclick="showTab('images', this)">Images</button>
+        <button class="menu-btn" onclick="showTab('map', this)">Map</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+        <!-- EVENTS TAB -->
+        <div id="events" class="tab active">
+            <h2>Accelerometer Triggered Events</h2>
+            <div class="event-card">
+                <h4>High Jerk Detected</h4>
+                <p>Time: 14:32:18</p>
+                <p>GPS: 28.6139° N, 77.2090° E</p>
+            </div>
+            <div class="event-card">
+                <h4>Track Irregularity</h4>
+                <p>Time: 15:01:44</p>
+                <p>GPS: 28.5355° N, 77.3910° E</p>
+            </div>
+        </div>
+
+        <!-- GRAPHS TAB -->
+        <div id="graphs" class="tab">
+            <h2>Accelerometer & Exception Analysis</h2>
+            <div class="graph-container">
+                <div class="graph-box">
+                    <h3>Accelerometer g-Values (Stacked Area)</h3>
+                    <canvas id="accelChart"></canvas>
+                    <h4 style="margin-top:18px">Ride Comfort Index (Histogram)</h4>
+                    <canvas id="rciHist" style="height:160px"></canvas>
+                    <h4 style="margin-top:18px">Speed (km/h) — Continuous</h4>
+                    <canvas id="speedChart" style="height:120px"></canvas>
+                </div>
+                <div class="csv-box">
+                    <div class="csv-icon">📄</div>
+                    <a onclick="downloadCSV(); return false;" style="cursor: pointer;">
+                        Download Exception Report (CSV)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMAGES TAB -->
+        <div id="images" class="tab">
+            <h2>Captured Images (ESP32-CAM)</h2>
+            <div class="image-grid">
+                <img src="high_alert.png" alt="High alert" style="border:2px solid #ef4444">
+                <img src="https://via.placeholder.com/400x250?text=Event+Image+1">
+                <img src="https://via.placeholder.com/400x250?text=Event+Image+2">
+                <img src="https://via.placeholder.com/400x250?text=Event+Image+3">
+                <img src="https://via.placeholder.com/400x250?text=Event+Image+4">
+            </div>
+        </div>
+
+        <!-- MAP TAB -->
+        <div id="map" class="tab">
+            <h2>Geolocation Map</h2>
+            <div class="graph-box">
+                <div id="mapid" style="height:420px; border-radius:8px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EXCEPTION REPORT MODAL -->
+<div id="exceptionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚠️ HIGH SEVERITY INTERRUPT DETECTED</h2>
+            <button class="close-btn" onclick="closeExceptionReport()">&times;</button>
+        </div>
+        
+        <div class="exception-details" id="exceptionDetails">
+            <!-- Filled by JavaScript -->
+        </div>
+
+        <h3 style="margin-top: 20px;">Exception Report of Acceleration above Level -2</h3>
+        <table class="exception-table">
+            <tr>
+                <th style="width:18%">DATE:</th>
+                <td style="width:24%" id="reportDate"></td>
+                <th style="width:14%">Railway</th>
+                <td id="reportRailway">NCR</td>
+            </tr>
+            <tr>
+                <th>KM: FROM</th>
+                <td id="reportKmFrom"></td>
+                <th>Division</th>
+                <td id="reportDivision">ALD</td>
+            </tr>
+        </table>
+
+        <table class="exception-table">
+            <tr>
+                <th style="width:28%">AXLE BOX - LEFT (VERTICAL)</th>
+                <th style="width:18%">LEVEL -2 (2.0g) Peak/Metre</th>
+                <th style="width:14%">Reading 1</th>
+                <th style="width:14%">Reading 2</th>
+                <th style="width:26%">Notes</th>
+            </tr>
+            <tr>
+                <td id="axleLeftV">—</td>
+                <td id="axleLeftVLevel">—</td>
+                <td id="axleLeftVR1">—</td>
+                <td id="axleLeftVR2">—</td>
+                <td id="axleLeftVNote">HIGH SEVERITY DETECTED</td>
+            </tr>
+            <tr>
+                <th>AXLEBOX - RIGHT (VERTICAL)</th>
+                <th>Level-2 (2.0g) Peak/Metre</th>
+                <th>Reading 1</th>
+                <th>Reading 2</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td id="axleRightV">—</td>
+                <td id="axleRightVLevel">—</td>
+                <td id="axleRightVR1">—</td>
+                <td id="axleRightVR2">—</td>
+                <td id="axleRightVNote">—</td>
+            </tr>
+            <tr>
+                <th>AXLE BOX - LEFT (LATERAL)</th>
+                <th>LEVEL -2 (2.0g) Peak/Metre</th>
+                <th>Reading 1</th>
+                <th>Reading 2</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td id="axleLeftL">—</td>
+                <td id="axleLeftLLevel">—</td>
+                <td id="axleLeftLR1">—</td>
+                <td id="axleLeftLR2">—</td>
+                <td id="axleLeftLNote">—</td>
+            </tr>
+            <tr>
+                <th>AXLEBOX - RIGHT (LATERAL)</th>
+                <th>Level-2 (2.0g) Peak/Metre</th>
+                <th>Reading 1</th>
+                <th>Reading 2</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td id="axleRightL">—</td>
+                <td id="axleRightLLevel">—</td>
+                <td id="axleRightLR1">—</td>
+                <td id="axleRightLR2">—</td>
+                <td id="axleRightLNote">—</td>
+            </tr>
+        </table>
+
+        <div class="modal-actions">
+            <button class="btn btn-success" onclick="downloadExceptionCSV()">Download CSV</button>
+            <button class="btn btn-secondary" onclick="closeExceptionReport()">Close</button>
+        </div>
+    </div>
+</div>
+<!-- JAVASCRIPT -->
+<script>
+// Global variables
+let lastExceptionData = null;
+
+function showTab(tabId, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    
+    if (tabId === 'map' && typeof window.map !== 'undefined') {
+        setTimeout(() => {
+            try { window.map.invalidateSize(); } catch (e) {}
+        }, 200);
+    }
+}
+
+// Chart setup
+const ctx = document.getElementById('accelChart').getContext('2d');
+
+function generateLabels(n) {
+    const labels = [];
+    const start = Date.now() - (n - 1) * 1000;
+    for (let i = 0; i < n; i++) {
+        labels.push(new Date(start + i * 1000).toLocaleTimeString());
+    }
+    return labels;
+}
+
+const sampleCount = 30;
+const labels = generateLabels(sampleCount);
+const baseData = Array.from({ length: sampleCount }, () => Number((Math.random() * 1.6 + 0.05).toFixed(3)));
+
+const compA = baseData.map(v => Number((v * 0.6).toFixed(3)));
+const compB = baseData.map(v => Number((v * 0.28).toFixed(3)));
+const compC = baseData.map(v => Number((v * 0.12).toFixed(3)));
+
+const gradA = ctx.createLinearGradient(0, 0, 0, 400);
+gradA.addColorStop(0, 'rgba(59,130,246,0.95)');
+gradA.addColorStop(1, 'rgba(59,130,246,0.12)');
+
+const gradB = ctx.createLinearGradient(0, 0, 0, 400);
+gradB.addColorStop(0, 'rgba(14,165,233,0.75)');
+gradB.addColorStop(1, 'rgba(14,165,233,0.08)');
+
+const gradC = ctx.createLinearGradient(0, 0, 0, 400);
+gradC.addColorStop(0, 'rgba(34,197,94,0.6)');
+gradC.addColorStop(1, 'rgba(34,197,94,0.06)');
+
+const accelChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Magnitude (g) — core',
+                data: compA,
+                backgroundColor: gradA,
+                borderColor: 'rgba(30,58,138,0.9)',
+                pointRadius: 0,
+                fill: true,
+                tension: 0.35,
+                stack: 'stack1'
+            },
+            {
+                label: 'Magnitude (g) — mid',
+                data: compB,
+                backgroundColor: gradB,
+                borderColor: 'transparent',
+                pointRadius: 0,
+                fill: true,
+                tension: 0.35,
+                stack: 'stack1'
+            },
+            {
+                label: 'Magnitude (g) — base',
+                data: compC,
+                backgroundColor: gradC,
+                borderColor: 'transparent',
+                pointRadius: 0,
+                fill: true,
+                tension: 0.35,
+                stack: 'stack1'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: {
+                title: { display: true, text: 'Time' },
+                ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
+            },
+            y: {
+                stacked: true,
+                beginAtZero: true,
+                title: { display: true, text: 'Acceleration (g)' }
+            }
+        }
+    }
+});
+
+function computeRMSWindows(data, windowSize) {
+    const out = [];
+    for (let i = 0; i <= data.length - windowSize; i++) {
+        const slice = data.slice(i, i + windowSize);
+        const meanSq = slice.reduce((s, v) => s + v * v, 0) / slice.length;
+        out.push(Math.sqrt(meanSq));
+    }
+    return out;
+}
+
+const windowSize = 3;
+const rmsVals = computeRMSWindows(baseData, windowSize);
+const rciScale = 1.5;
+const rciVals = rmsVals.map(r => Math.min(100, Math.round((r / rciScale) * 100)));
+
+function makeHistogram(values, binCount) {
+    const bins = new Array(binCount).fill(0);
+    values.forEach(v => {
+        const idx = Math.min(binCount - 1, Math.floor((v / 100) * binCount));
+        bins[idx]++;
+    });
+    return bins;
+}
+
+const binCount = 10;
+const histBins = makeHistogram(rciVals, binCount);
+const histLabels = Array.from({ length: binCount }, (_, i) => `${i * (100 / binCount)}-${(i + 1) * (100 / binCount)}`);
+
+const speedSamples = Array.from({ length: sampleCount }, () => 0);
+const speedLabels = generateLabels(sampleCount);
+
+const ctxHist = document.getElementById('rciHist').getContext('2d');
+const rciChart = new Chart(ctxHist, {
+    type: 'bar',
+    data: {
+        labels: histLabels,
+        datasets: [{
+            label: 'RCI distribution',
+            data: histBins,
+            backgroundColor: 'rgba(59,130,246,0.7)'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { title: { display: true, text: 'Ride Comfort Index (0 = best, 100 = worst)' } },
+            y: { title: { display: true, text: 'Occurrences' }, beginAtZero: true }
+        }
+    }
+});
+
+const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+const speedChart = new Chart(ctxSpeed, {
+    type: 'line',
+    data: {
+        labels: speedLabels,
+        datasets: [{
+            label: 'Speed (km/h)',
+            data: speedSamples,
+            borderColor: 'rgba(16,185,129,0.9)',
+            backgroundColor: 'rgba(16,185,129,0.08)',
+            pointRadius: 0,
+            tension: 0.25,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { display: false },
+            y: { title: { display: true, text: 'Speed (km/h)' }, beginAtZero: true }
+        }
+    }
+});
+
+function classifyPeak(g) {
+    if (g > 16) return 'high';
+    if (g > 4) return 'medium';
+    if (g > 2) return 'low';
+    return 'none';
+}
+
+const eventContainer = document.getElementById('events');
+function createImpactIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'impact-indicator';
+    indicator.className = 'event-card';
+    indicator.style.borderLeftColor = '#3b82f6';
+    indicator.innerHTML = `<h4>Impact</h4><p id="impact-status">None</p><p id="impact-time"></p><p id="impact-gps"></p>`;
+    const heading = eventContainer.querySelector('h2');
+    if (heading && heading.nextSibling) eventContainer.insertBefore(indicator, heading.nextSibling);
+    else eventContainer.insertBefore(indicator, eventContainer.firstChild || null);
+}
+
+if (!document.getElementById('impact-indicator')) createImpactIndicator();
+
+window.map = null;
+function initMap() {
+    try {
+        window.map = L.map('mapid').setView([currentLat, currentLon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(window.map);
+    } catch (e) {
+        console.warn('Map init failed', e);
+    }
+}
+
+function ensureLeafletAndInit(cb) {
+    if (typeof L !== 'undefined') {
+        cb();
+        return;
+    }
+    if (!document.querySelector('link[data-leaflet]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        link.setAttribute('data-leaflet', 'true');
+        document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[data-leaflet]')) {
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        s.setAttribute('data-leaflet', 'true');
+        s.onload = () => { cb(); };
+        s.onerror = () => { console.warn('Failed to load Leaflet script'); };
+        document.body.appendChild(s);
+    } else {
+        const existing = document.querySelector('script[data-leaflet]');
+        existing.addEventListener('load', () => cb());
+    }
+}
+
+setTimeout(() => { if (document.getElementById('mapid')) ensureLeafletAndInit(initMap); }, 300);
+
+function prependEventCard(title, time, g, severity, lat, lon, speed) {
+    const c = document.createElement('div');
+    c.className = 'event-card';
+    c.style.borderLeftColor = severity === 'high' ? '#ef4444' : (severity === 'medium' ? '#f59e0b' : '#22c55e');
+    c.innerHTML = `<h4>${title} — ${severity.toUpperCase()}</h4>
+        <p>Time: ${time}</p>
+        <p>Peak: ${g.toFixed(3)} g</p>
+        <p>GPS: ${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E</p>
+        <p>Speed: ${typeof speed === 'number' ? speed.toFixed(1) + ' km/h' : '—'}</p>`;
+    const indicator = document.getElementById('impact-indicator');
+    if (indicator && indicator.nextSibling) eventContainer.insertBefore(c, indicator.nextSibling);
+    else if (indicator) eventContainer.appendChild(c);
+    else {
+        const heading = eventContainer.querySelector('h2');
+        if (heading && heading.nextSibling) eventContainer.insertBefore(c, heading.nextSibling);
+        else eventContainer.appendChild(c);
+    }
+}
+
+let currentSeverity = 'none';
+let lowTimeout = null;
+let mediumTimeout = null;
+let highImageShown = false;
+
+function setImpact(sev, time, g, lat, lon) {
+    currentSeverity = sev;
+    const statusEl = document.getElementById('impact-status');
+    const timeEl = document.getElementById('impact-time');
+    const gpsEl = document.getElementById('impact-gps');
+    statusEl.textContent = sev.toUpperCase();
+    timeEl.textContent = `Last: ${time}`;
+    if (gpsEl && typeof lat === 'number' && typeof lon === 'number') gpsEl.textContent = `GPS: ${lat.toFixed(6)}°, ${lon.toFixed(6)}°`;
+    prependEventCard('Impact Detected', time, g, sev, lat, lon, currentSpeed);
+    
+    if (typeof L !== 'undefined' && window.map && typeof lat === 'number' && typeof lon === 'number') {
+        const m = L.marker([lat, lon]).addTo(window.map);
+        m.bindPopup(`<strong>${sev.toUpperCase()}</strong><br/>${g.toFixed(3)} g<br/>Speed: ${currentSpeed.toFixed(1)} km/h<br/>${time}`).openPopup();
+        window.map.panTo([lat, lon]);
+    }
+
+    if (sev === 'high' && !highImageShown) {
+        highImageShown = true;
+        const imgGrid = document.querySelector('.image-grid');
+        if (imgGrid) {
+            const img = document.createElement('img');
+            img.src = 'high_alert.png';
+            img.alt = 'High alert image';
+            img.style.border = '2px solid #ef4444';
+            imgGrid.insertBefore(img, imgGrid.firstChild);
+        }
+        
+        // SHOW EXCEPTION REPORT MODAL
+        showExceptionReport(time, g, lat, lon);
+    }
+}
+
+function handleNewSample(g, time, lat, lon) {
+    const sev = classifyPeak(g);
+    if (sev === 'none') return;
+    setImpact(sev, time, g, lat, lon);
+}
+
+if (!document.getElementById('impact-indicator')) createImpactIndicator();
+
+function pushSample(g, lat, lon) {
+    const now = new Date().toLocaleTimeString();
+    const a = Number((g * 0.6).toFixed(3));
+    const b = Number((g * 0.28).toFixed(3));
+    const c = Number((g * 0.12).toFixed(3));
+
+    accelChart.data.labels.push(now);
+    accelChart.data.labels = accelChart.data.labels.slice(-sampleCount);
+    accelChart.data.datasets[0].data.push(a);
+    accelChart.data.datasets[1].data.push(b);
+    accelChart.data.datasets[2].data.push(c);
+    accelChart.data.datasets.forEach(ds => { if (ds.data.length > sampleCount) ds.data.shift(); });
+    accelChart.update('none');
+
+    const allMagnitudes = accelChart.data.labels.map((_, i) => {
+        const d0 = accelChart.data.datasets[0].data[i] || 0;
+        const d1 = accelChart.data.datasets[1].data[i] || 0;
+        const d2 = accelChart.data.datasets[2].data[i] || 0;
+        return d0 + d1 + d2;
+    });
+    const rms = computeRMSWindows(allMagnitudes, windowSize);
+    const rci = rms.map(r => Math.min(100, Math.round((r / rciScale) * 100)));
+    const bins = makeHistogram(rci, binCount);
+    rciChart.data.datasets[0].data = bins;
+    rciChart.update('none');
+
+    if (typeof lat === 'number' && typeof lon === 'number') {
+        handleNewSample(g, now, lat, lon);
+    }
+}
+
+let currentLat = 28.6139;
+let currentLon = 77.2090;
+let currentSpeed = 90 + Math.random() * 10;
+
+function generateSpeedSample() {
+    const delta = (Math.random() - 0.5) * 3.0;
+    currentSpeed = Math.max(0, currentSpeed + delta);
+    return Number(currentSpeed.toFixed(2));
+}
+
+function generateSample() {
+    const r = Math.random();
+    let g;
+    if (r < 1/3) {
+        g = Number((2.1 + Math.random() * 1.8).toFixed(3));
+    } else if (r < 2/3) {
+        g = Number((4.1 + Math.random() * 3.9).toFixed(3));
+    } else {
+        g = Number((16.1 + Math.random() * 4.0).toFixed(3));
+    }
+    currentLat += (Math.random() - 0.5) * 0.0008;
+    currentLon += (Math.random() - 0.5) * 0.0008;
+    return { g, lat: currentLat, lon: currentLon };
+}
+
+function generateChartSample() {
+    let g = Number((Math.random() * 1.55 + 0.05).toFixed(3));
+    if (Math.random() < 0.05) {
+        g = Number((2.0 + Math.random() * 4.0).toFixed(3));
+    }
+    return g;
+}
+
+setInterval(() => {
+    const g = generateChartSample();
+    const sp = generateSpeedSample();
+    pushSample(g);
+    const now = new Date().toLocaleTimeString();
+    speedChart.data.labels.push(now);
+    speedChart.data.labels = speedChart.data.labels.slice(-sampleCount);
+    speedChart.data.datasets[0].data.push(sp);
+    if (speedChart.data.datasets[0].data.length > sampleCount) speedChart.data.datasets[0].data.shift();
+    speedChart.update('none');
+}, 1000);
+
+setInterval(() => {
+    const s = generateSample();
+    const sp = generateSpeedSample();
+    pushSample(s.g, s.lat, s.lon);
+    const now = new Date().toLocaleTimeString();
+    speedChart.data.labels.push(now);
+    speedChart.data.labels = speedChart.data.labels.slice(-sampleCount);
+    speedChart.data.datasets[0].data.push(sp);
+    if (speedChart.data.datasets[0].data.length > sampleCount) speedChart.data.datasets[0].data.shift();
+    speedChart.update('none');
+}, 5000);
+
+// EXCEPTION REPORT MODAL FUNCTIONS
+function showExceptionReport(time, g, lat, lon) {
+    const now = new Date();
+    const dateStr = String(now.getDate()).padStart(2, '0') + '.' + 
+                    String(now.getMonth() + 1).padStart(2, '0') + '.' + 
+                    now.getFullYear();
+    
+    lastExceptionData = {
+        date: dateStr,
+        time: time,
+        peakG: g,
+        lat: lat,
+        lon: lon,
+        speed: currentSpeed,
+        timestamp: now
+    };
+    
+    document.getElementById('reportDate').textContent = dateStr;
+    document.getElementById('reportKmFrom').textContent = '0121-0122';
+    document.getElementById('exceptionDetails').innerHTML = `
+        <p><strong>Severity Level:</strong> HIGH</p>
+        <p><strong>Time of Interrupt:</strong> ${time}</p>
+        <p><strong>Peak Acceleration:</strong> ${g.toFixed(3)} g</p>
+        <p><strong>Location:</strong> ${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E</p>
+        <p><strong>Speed at Interrupt:</strong> ${currentSpeed.toFixed(1)} km/h</p>
+        <p><strong>Section:</strong> CNB - ALD | <strong>Railway:</strong> NCR | <strong>Division:</strong> Northern</p>
+    `;
+    
+    document.getElementById('axleLeftVLevel').textContent = (g * 0.6).toFixed(2) + ' g';
+    document.getElementById('axleLeftVR1').textContent = (2.12).toFixed(2);
+    document.getElementById('axleLeftVR2').textContent = (g / 10).toFixed(2);
+    
+    document.getElementById('axleRightVLevel').textContent = (g * 0.28).toFixed(2) + ' g';
+    document.getElementById('axleRightVR1').textContent = (2.34).toFixed(2);
+    document.getElementById('axleRightVR2').textContent = (g / 12).toFixed(2);
+    
+    document.getElementById('axleLeftLLevel').textContent = (g * 0.12).toFixed(2) + ' g';
+    document.getElementById('axleLeftLR1').textContent = (2.12).toFixed(2);
+    document.getElementById('axleLeftLR2').textContent = (g / 15).toFixed(2);
+    
+    document.getElementById('axleRightLLevel').textContent = (g * 0.22).toFixed(2) + ' g';
+    document.getElementById('axleRightLR1').textContent = (2.52).toFixed(2);
+    document.getElementById('axleRightLR2').textContent = (g / 18).toFixed(2);
+    
+    document.getElementById('exceptionModal').classList.add('show');
+}
+
+function closeExceptionReport() {
+    document.getElementById('exceptionModal').classList.remove('show');
+}
+
+function downloadExceptionCSV() {
+    if (!lastExceptionData) return;
+    
+    const d = lastExceptionData;
+    const csvContent = [
+        ['Exception Report of Acceleration above Level -2'],
+        [],
+        ['DATE:', d.date, 'Railway', 'NCR', 'Filter Range', '1.0m - 3.0m'],
+        ['KM: FROM', '0121-0122', 'Division', 'ALD', 'Section', 'CNB - ALD'],
+        [],
+        ['AXLE BOX - LEFT (VERTICAL)', 'LEVEL -2 (2.0g) Peak/Metre', 'Reading 1', 'Reading 2', 'Notes'],
+        [(d.peakG * 0.6).toFixed(2) + ' g', (d.peakG * 0.6).toFixed(2), '2.12', (d.peakG / 10).toFixed(2), 'HIGH SEVERITY'],
+        [],
+        ['AXLEBOX - RIGHT (VERTICAL)', 'Level-2 (2.0g) Peak/Metre', 'Reading 1', 'Reading 2', ''],
+        [(d.peakG * 0.28).toFixed(2) + ' g', (d.peakG * 0.28).toFixed(2), '2.34', (d.peakG / 12).toFixed(2), ''],
+        [],
+        ['AXLE BOX - LEFT (LATERAL)', 'LEVEL -2 (2.0g) Peak/Metre', 'Reading 1', 'Reading 2', ''],
+        [(d.peakG * 0.12).toFixed(2) + ' g', (d.peakG * 0.12).toFixed(2), '2.12', (d.peakG / 15).toFixed(2), ''],
+        [],
+        ['AXLEBOX - RIGHT (LATERAL)', 'Level-2 (2.0g) Peak/Metre', 'Reading 1', 'Reading 2', ''],
+        [(d.peakG * 0.22).toFixed(2) + ' g', (d.peakG * 0.22).toFixed(2), '2.52', (d.peakG / 18).toFixed(2), ''],
+        [],
+        ['Additional Info:'],
+        ['Time of Interrupt', d.time],
+        ['Location (Lat)', d.lat.toFixed(6)],
+        ['Location (Lon)', d.lon.toFixed(6)],
+        ['Speed (km/h)', d.speed.toFixed(1)]
+    ];
+    
+    const csvStr = csvContent.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csvStr], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'exception_report.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function downloadCSV() {
+    if (!lastExceptionData) {
+        alert('No exception data available. Wait for a high-severity interrupt to occur.');
+        return;
+    }
+    downloadExceptionCSV();
+}
+</script>
+
+</body>
+</html>
